@@ -1,9 +1,7 @@
 package LeetCode;
 
 import java.time.chrono.HijrahEra;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class LeetCode_hot100_2 {
 
@@ -103,8 +101,46 @@ public class LeetCode_hot100_2 {
         return ans;
     }
 
+    //3 无重复字符的最长子串
+    //给定一个字符串 s ，请你找出其中不含有重复字符的 最长子串的长度。
+    public int lengthOfLongestSubstring(String s) {
+        //设置滑动窗口，从左侧开始，移动右指针，将值放入set，直到遇到重复字符；此时移动左指针
+        Set<Character> set = new HashSet<>();
+        int right = 0;
+        int subLength = 0;
+        for (int left = 0; left < s.length(); left++) {
+            if (left != 0){
+                set.remove(s.charAt(left-1));
+            }
+            while (right < s.length() && !set.contains(s.charAt(right))){
+                set.add(s.charAt(right));
+                right++;
+            }
+            subLength = Math.max(right-left, subLength);
+        }
+        return subLength;
+    }
 
-
+    //438 找到字符串中所有字母异位词
+    // 给定两个字符串 s 和 p，找到 s 中所有 p 的 异位词 的子串，返回这些子串的起始索引。不考虑答案输出的顺序。
+    public List<Integer> findAnagrams(String s, String p) {
+        //创建两个数组存放各字母出现的次数，先把p和s的前p.length()个放入，作为滑动窗口，依次迭代比较数组值
+        int[] pc = new int[26];
+        int[] sc = new int[26];
+        List<Integer> list = new ArrayList<>();
+        if (p.length() > s.length()) return list;
+        for (int i = 0; i < p.length(); i++) {
+            ++pc[p.charAt(i) - 'a'];
+            ++sc[s.charAt(i) - 'a'];
+        }
+        if (Arrays.equals(pc, sc)) list.add(0);
+        for (int i = p.length(); i < s.length(); i++) {
+            ++sc[s.charAt(i) - 'a'];
+            --sc[s.charAt(i-p.length()) - 'a'];
+            if (Arrays.equals(pc, sc)) list.add(i-p.length()+1);
+        }
+        return list;
+    }
 
 
 
