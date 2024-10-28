@@ -1,8 +1,11 @@
 package LeetCode;
 
 import com.sun.jdi.Value;
+import com.sun.source.tree.Tree;
 
+import java.security.Key;
 import java.util.*;
+import java.util.zip.CRC32;
 
 public class test {
 
@@ -696,23 +699,223 @@ public class test {
     }
      */
 
-    /*给你链表的头节点 head ，每 k 个节点一组进行翻转，请你返回修改后的链表。
-    k 是一个正整数，它的值小于或等于链表的长度。如果节点总数不是 k 的整数倍，那么请将最后剩余的节点保持原有顺序。*/
+
+    //25. K 个一组翻转链表
+    //给你链表的头节点 head ，每 k 个节点一组进行翻转，请你返回修改后的链表。
+    //k 是一个正整数，它的值小于或等于链表的长度。如果节点总数不是 k 的整数倍，那么请将最后剩余的节点保持原有顺序。
+    //你不能只是单纯的改变节点内部的值，而是需要实际进行节点交换。
     public ListNode reverseKGroup(ListNode head, int k) {
-        int n = k;
-        while (true){
-            //判断末尾是否有k个结点
-            while (k != 0 && head != null){
-                head = head.next;
-                k--;
+        //递归，终止条件：节点不够k， 从前往后递归，
+        int nodeCount = 0;
+        ListNode currentNode = head;
+        while (currentNode != null) {
+            nodeCount++;
+            currentNode = currentNode.next;
+        }
+        if (nodeCount < k ) return head;
+        //翻转前 k 个节点，pre：已经反转的头节点 cur：正在翻转的节点 next：下一个节点
+        ListNode pre = head;
+        ListNode cur = head.next;
+        for (int i = 0; i < k-1; i++) {
+            ListNode next = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = next;
+        }
+        head.next = reverseKGroup(cur, k);
+        return pre;
+
+    }
+    /*
+    * public ListNode reverseKGroup(ListNode head, int k) {
+    // 递归：先走到链表末尾，然后从后往前处理
+    if (head == null) return null;
+
+    // 检查剩下的链表长度是否够k，不够的话直接返回，不做翻转
+    ListNode currentNode = head;
+    int nodeCount = 0;
+    while (currentNode != null && nodeCount < k) {
+        currentNode = currentNode.next;
+        nodeCount++;
+    }
+
+    if (nodeCount < k) {
+        // 如果剩余节点数量小于k，直接返回，不进行翻转
+        return head;
+    }
+
+    // 递归处理后面的部分，先走到链表的末端
+    ListNode newHead = reverseKGroup(currentNode, k);
+
+    // 翻转当前的 k 个节点
+    ListNode prev = null;
+    ListNode curr = head;
+    for (int i = 0; i < k; i++) {
+        ListNode next = curr.next;
+        curr.next = prev;
+        prev = curr;
+        curr = next;
+    }
+
+    // 当前的head（即翻转后的最后一个节点）指向后面的递归结果
+    head.next = newHead;
+
+    // 返回翻转后的头节点，即prev
+    return prev;
+}
+
+    * */
+
+
+    //138. 随机链表的复制
+    /*给你一个长度为 n 的链表，每个节点包含一个额外增加的随机指针 random ，该指针可以指向链表中的任何节点或空节点。
+    构造这个链表的 深拷贝。
+    深拷贝应该正好由 n 个 全新 节点组成，其中每个新节点的值都设为其对应的原节点的值。
+    新节点的 next 指针和 random 指针也都应指向复制链表中的新节点，并使原链表和复制链表中的这些指针能够表示相同的链表状态。复制链表中的指针都不应指向原链表中的节点 。
+    例如，如果原链表中有 X 和 Y 两个节点，其中 X.random --> Y 。那么在复制链表中对应的两个节点 x 和 y ，同样有 x.random --> y 。
+    返回复制链表的头节点。
+    用一个由 n 个节点组成的链表来表示输入/输出中的链表。每个节点用一个 [val, random_index] 表示：
+    val：一个表示 Node.val 的整数。
+    random_index：随机指针指向的节点索引（范围从 0 到 n-1）；如果不指向任何节点，则为  null 。
+    你的代码 只 接受原链表的头节点 head 作为传入参数。*/
+    class Node {
+        int val;
+        Node next;
+        Node random;
+
+        public Node(int val) {
+            this.val = val;
+            this.next = null;
+            this.random = null;
+        }
+    }
+    public Node copyRandomList(Node head) {
+        //深拷贝，先将random置null，把val和next复制，并把原节点和复制的节点放入map，再依次将random赋值
+        if (head == null) return null;
+        Node newHead = new Node(head.val);
+        Node h1 =  head;
+        Node h2 =  newHead;
+        Map<Node, Node> map = new HashMap<>();
+        map.put(head, newHead);
+        while (head != null){
+            if (head.next != null){
+                newHead.next = new Node(head.next.val);
+                map.put(head.next, newHead.next);
             }
-            if (k == 0){
-                ListNode temp = head;
-                //head.next =
+            newHead = newHead.next;
+            head = head.next;
+        }
+        head = h1;
+        newHead = h2;
+        while (head != null){
+            if (head.random != null){
+                map.get(head).random = map.get(head.random);
+            }
+            head = head.next;
+        }
+        return h2;
+    }
+
+    //146. LRU 缓存
+    //请你设计并实现一个满足  LRU (最近最少使用) 缓存 约束的数据结构。
+    //实现 LRUCache 类：
+    //LRUCache(int capacity) 以 正整数 作为容量 capacity 初始化 LRU 缓存
+    //int get(int key) 如果关键字 key 存在于缓存中，则返回关键字的值，否则返回 -1 。
+    //void put(int key, int value) 如果关键字 key 已经存在，则变更其数据值 value ；如果不存在，则向缓存中插入该组 key-value 。如果插入操作导致关键字数量超过 capacity ，则应该 逐出 最久未使用的关键字。
+    //函数 get 和 put 必须以 O(1) 的平均时间复杂度运行。
+    /*class LRUCache {
+
+        class DLinkedNode{
+            int key;
+            int value;
+            DLinkedNode prev;
+            DLinkedNode next;
+            public DLinkedNode(){}
+            public DLinkedNode(int _key, int _value){
+                key = _key;
+                value = _value;
             }
         }
 
+        private Map<Integer, DLinkedNode>  cache = new HashMap<>();
+        private int size;
+        private int capacity;
+        private DLinkedNode head, tail;
+
+        public LRUCache(int capacity) {
+            this.size = 0;
+            this.capacity = capacity;
+            head = new DLinkedNode();
+            tail = new DLinkedNode();
+            head.next = tail;
+            tail.next = head;
+        }
+
+        public int get(int key) {
+            DLinkedNode node = cache.get(key);
+            if (node == null){
+                return -1;
+            }
+            moveTO
+        }
+
+        public void put(int key, int value) {
+
+        }
+    }*/
+
+    //94. 二叉树的中序遍历
+    //给定一个二叉树的根节点 root ，返回 它的 中序 遍历 。
+    //左根右
+    public class TreeNode {
+        int val;
+        TreeNode left;
+        TreeNode right;
+        TreeNode() {}
+        TreeNode(int val) { this.val = val; }
+        TreeNode(int val, TreeNode left, TreeNode right) {
+            this.val = val;
+            this.left = left;
+            this.right = right;
+            }
+        }
+    public List<Integer> inorderTraversal(TreeNode root) {
+        List<Integer> list = new ArrayList<>();
+        inOrder(root, list);
+        return list;
     }
+    public void inOrder(TreeNode root, List<Integer> res){
+        if (root == null){
+            return;
+        }
+        inOrder(root.left, res);
+        res.add(root.val);
+        inOrder(root.right, res);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
 

@@ -142,6 +142,169 @@ public class LeetCode_hot100_2 {
         return list;
     }
 
+    //560 和为K的子数组
+    //给你一个整数数组 nums 和一个整数 k ，请你统计并返回 该数组中和为 k 的子数组的个数 。
+    //子数组是数组中元素的连续非空序列。
+    public int subarraySum(int[] nums, int k) {
+        //前缀和
+        Map<Integer, Integer> map = new HashMap<>();
+        int pre = 0;
+        int n = 0;
+        map.put(0, 1);
+        for (int i = 0; i < nums.length; i++) {
+            pre += nums[i];
+            if (map.containsKey(pre - k)){
+                n += map.get(pre - k);
+            }
+            map.put(pre, map.getOrDefault(pre, 0) + 1);
+        }
+        return n;
+    }
+
+    //76. 最小覆盖子串
+    //给你一个字符串 s 、一个字符串 t 。返回 s 中涵盖 t 所有字符的最小子串。如果 s 中不存在涵盖 t 所有字符的子串，则返回空字符串 "" 。
+    public String minWindow(String s, String t) {
+        //map集合，存放t的字符及其数量；创建滑动窗口，右指针的指向的字符在map集合中的value-1，matcher方法是判断是否有小于0的值，这样不需要考虑其他t不包含的其他字符；
+        //当matcher为true时，记录左指针位置和长度，再移动左指针，直到matcher为false，
+        int left = 0, right = 0;
+        int minL = Integer.MAX_VALUE, index = 0;
+        HashMap<Character, Integer> t_hm = new HashMap<>();
+        for (char c : t.toCharArray()) {
+            t_hm.put(c, t_hm.getOrDefault(c, 0) + 1);
+        }
+        while (right < s.length()) {
+            if (t_hm.containsKey(s.charAt(right))) {
+                t_hm.put(s.charAt(right), t_hm.get(s.charAt(right)) - 1);
+            }
+            while (matcher(t_hm) && left <= right) {
+                if (right - left + 1 < minL) {
+                    minL = right - left + 1;
+                    index = left;
+                }
+                if (t_hm.containsKey(s.charAt(left))) {
+                    t_hm.put(s.charAt(left), t_hm.get(s.charAt(left)) + 1);
+                }
+                left++;
+            }
+            right++;
+        }
+        return minL == Integer.MAX_VALUE ? "" : s.substring(index, index + minL);
+    }
+    private static boolean matcher(HashMap<Character, Integer> t) {
+        for (int value : t.values()) {
+            if (value > 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    //53 最大子数组和
+    //给你一个整数数组 nums ，请你找出一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。子数组是数组中的一个连续部分。
+    public int maxSubArray(int[] nums) {
+       //对每一个元素i来说，f(i)是以i为结尾的最大值。判断f(i)时只需要看num[i]和f(i-1)的值即可
+        int temp = 0, sum = nums[0];
+        for (int i = 0; i < nums.length; i++) {
+            temp = Math.max(nums[i], nums[i]+temp);
+            sum = Math.max(sum, temp);
+        }
+        return sum;
+    }
+
+    //56. 合并区间
+    //以数组 intervals 表示若干个区间的集合，其中单个区间为 intervals[i] = [starti, endi] 。
+    // 请你合并所有重叠的区间，并返回 一个不重叠的区间数组，该数组需恰好覆盖输入中的所有区间 。
+    public int[][] merge(int[][] intervals) {
+        //重写sort方法将数组排序，再将有重叠的数组合并并放入list，最后返回数组
+        Arrays.sort(intervals, new Comparator<int[]>() {
+            @Override
+            public int compare(int[] o1, int[] o2) {
+                return o1[0] - o2[0];
+            }
+        });
+        List<int[]> list = new ArrayList<>();
+        for (int i = 0; i < intervals.length; i++) {
+            int start = intervals[i][0];
+            int end = intervals[i][1];
+            if (list.size() == 0 || list.get(list.size()-1)[1] < start){
+                list.add(new int[]{start, end});
+            }else {
+                list.get(list.size()-1)[1] = Math.max(list.get(list.size()-1)[1], end);
+            }
+        }
+        return list.toArray(new int[list.size()][]);
+    }
+
+    //189. 轮转数组
+    //给定一个整数数组 nums，将数组中的元素向右轮转 k 个位置，其中 k 是非负数
+    public void rotate(int[] nums, int k) {
+        //1. while循环k次，每次右移一位
+        //2. 创建新数组，再赋值
+        //3. 环形替换，
+        //赋值：
+        int n = nums.length;
+        k = k % n;
+        int[] r = new int[n];
+        for (int i = 0; i < n; i++) {
+            r[i] = nums[(n-k+i) % n];
+        }
+        System.arraycopy(r, 0, nums,0, n);
+    }
+
+    //238. 除自身以外数组的乘积
+    //给你一个整数数组 nums，返回 数组 answer ，其中 answer[i] 等于 nums 中除 nums[i] 之外其余各元素的乘积 。
+    //题目数据 保证 数组 nums之中任意元素的全部前缀元素和后缀的乘积都在  32 位 整数范围内。
+    //请 不要使用除法，且在 O(n) 时间复杂度内完成此题。
+    public int[] productExceptSelf(int[] nums) {
+        //创建左乘积和右乘积数组，answer[i]=left[i]*right[i]
+        int n = nums.length;
+        int[] left = new int[n];
+        int[] right = new int[n];
+        int L = 1;
+        int R = 1;
+        int[] answer = new int[n];
+        for (int i = 0; i < n; i++) {
+            left[i] = L;
+            L *= nums[i];
+        }
+        for (int i = n-1; i >= 0; i--) {
+            right[i] = R;
+            R *= nums[i];
+        }
+        for (int i = 0; i < n; i++) {
+            answer[i] = left[i] * right[i];
+        }
+        return answer;
+    }
+
+    //41. 缺失的第一个正数
+    //给你一个未排序的整数数组 nums ，请你找出其中没有出现的最小的正整数。
+    //请你实现时间复杂度为 O(n) 并且只使用常数级别额外空间的解决方案。
+    public int firstMissingPositive(int[] nums) {
+        //对于一个长度为 N 的数组，其中没有出现的最小正整数只能在 [1,N+1] 中。
+        //将数组的值本身当作索引将其在数组中对应的值取负，作为标记
+        //最后遍历数组，第一个正值的索引+1就是题目所求
+        int n = nums.length;
+        //首先将非正数修改为n+1
+        for (int i = 0; i < n; i++) {
+            if (nums[i] <= 0) nums[i] = n+1;
+        }
+        //将对应索引变为负值
+        for (int i = 0; i < n; i++) {
+            int temp = Math.abs(nums[i]);
+            if (temp < n) {
+                nums[temp-1] = -Math.abs(nums[temp-1]);
+            }
+        }
+        for (int i = 0; i < n; i++) {
+            if (nums[i] > 0) return i+1;
+        }
+        return n+1;
+    }
+
+
+
+
 
 
 
