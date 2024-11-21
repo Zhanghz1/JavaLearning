@@ -2,8 +2,8 @@ package LeetCode;
 
 import java.util.*;
 
-public class Programmercarl {
 
+public class Programmercarl {
     //27 移除元素， 类似：283 移动零
     public int removeElement(int[] nums, int val) {
         //双指针，一个按序指向下一个元素，一个指向非val元素
@@ -1621,6 +1621,211 @@ public class Programmercarl {
         return root;
     }
 
+    //回溯法模板
+/*    void backtracking(参数) {
+        if (终止条件) {
+            存放结果;
+            return;
+        }
+
+        for (选择：本层集合中元素（树中节点孩子的数量就是集合的大小）) {
+            处理节点;
+            backtracking(路径，选择列表); // 递归
+            回溯，撤销处理结果
+        }
+    }*/
+
+    //77. 组合
+    //给定两个整数 n 和 k，返回范围 [1, n] 中所有可能的 k 个数的组合。
+    //你可以按 任何顺序 返回答案。
+    List<List<Integer>> ansOfCombine = new ArrayList<>();
+    List<Integer> tempOfCombine = new ArrayList<>();
+    public List<List<Integer>> combine(int n, int k) {
+        //想象为n叉数问题，k为树的深度，在每一层递归进行for循环，for的次数等于k-已经有的数字个数;
+            backTrackingOfCombine(1,n, k);
+            return ansOfCombine;
+    }
+    public void backTrackingOfCombine(int startIdx, int n, int k) {
+        if (tempOfCombine.size() == k){
+            //存储的是地址，如果直接add temp，在后续会发生改变；因此add的是temp的副本
+            ansOfCombine.add(new ArrayList<>(tempOfCombine));
+            return;
+        }
+        for (int i = startIdx; i <= n - (k - tempOfCombine.size()) + 1; i++) {
+            tempOfCombine.add(i);
+            backTrackingOfCombine(i + 1, n, k);
+            //移除最后一个数字，进项下次循环
+            tempOfCombine.removeLast();
+        }
+    }
+
+    //216. 组合总和 III
+    //找出所有相加之和为 n 的 k 个数的组合，且满足下列条件：
+    //只使用数字1到9
+    //每个数字 最多使用一次
+    //返回 所有可能的有效组合的列表 。该列表不能包含相同的组合两次，组合可以以任何顺序返回。
+
+    public List<List<Integer>> combinationSum3(int k, int n) {
+        backTrackingOfCombine3(1, n, k);
+        return ansOfCombine;
+    }
+    private void backTrackingOfCombine3(int startIdx, int n, int k) {
+        //终止条件，和为n或已经九个数
+        int sum = sumOfList(tempOfCombine);
+        if (sum > n) return;
+        if (tempOfCombine.size() == k && sum == n) {
+            ansOfCombine.add(new ArrayList<>(tempOfCombine));
+            return;
+        }
+        for (int i = startIdx; i < 10 - (k - tempOfCombine.size()) + 1 ; i++) {
+            tempOfCombine.add(i);
+            backTrackingOfCombine3(i + 1, n, k);
+            tempOfCombine.removeLast();
+        }
+
+    }
+    private int sumOfList(List<Integer> list) {
+        int sum = 0;
+        for (Integer i : list) {
+            sum += i;
+        }
+        return sum;
+    }
+
+    //17. 电话号码的字母组合
+    //给定一个仅包含数字 2-9 的字符串，返回所有它能表示的字母组合。答案可以按 任意顺序 返回。
+    //给出数字到字母的映射如下（与电话按键相同）。注意 1 不对应任何字母。
+    List<String> ansOfLetterCom = new ArrayList<>();
+    //digits == "" 字符串是引用类型，要这样比：digits.equals("")
+    //isEmpty() 在字符串为 null 时会抛出 NullPointerException，而 equals("") 在字符串为 null 时会安全地返回 false。
+    public List<String> letterCombinations(String digits) {
+        if (digits.isEmpty() || digits == null) return ansOfLetterCom;
+        StringBuilder sbOfLetterCom = new StringBuilder();
+        backTrackingOfLetterCom(digits, 0, sbOfLetterCom);
+        return ansOfLetterCom;
+    }
+    private void backTrackingOfLetterCom(String digits, int index, StringBuilder sbOfLetterCom) {
+        int n = digits.length();
+        if (sbOfLetterCom.length() == n ) {
+            ansOfLetterCom.add(new String(sbOfLetterCom.toString()));
+            return;
+        }
+        String s = getStringofIndex(Character.getNumericValue(digits.charAt(index)));
+        for (int i = 0; i < s.length(); i++) {
+            sbOfLetterCom.append(s.charAt(i));
+            backTrackingOfLetterCom(digits, index + 1, sbOfLetterCom);
+            sbOfLetterCom.deleteCharAt(sbOfLetterCom.length() - 1);
+        }
+    }
+
+    private String getStringofIndex(int c) {
+        switch (c){
+            case 2: return "abc";
+            case 3: return "def";
+            case 4: return "ghi";
+            case 5: return "jkl";
+            case 6: return "mno";
+            case 7: return "pqrs";
+            case 8: return "tuv";
+            case 9: return "wxyz";
+            default: return "";
+        }
+    }
+
+    //39. 组合总和
+    //给你一个 无重复元素 的整数数组 candidates 和一个目标整数 target ，找出 candidates 中可以使数字和为目标数 target 的 所有 不同组合 ，并以列表形式返回。你可以按 任意顺序 返回这些组合。
+    //candidates 中的 同一个 数字可以 无限制重复被选取 。如果至少一个数字的被选数量不同，则两种组合是不同的。
+    //对于给定的输入，保证和为 target 的不同组合数少于 150 个。
+/*    List<List<Integer>> ansOfCombine = new ArrayList<>();
+    List<Integer> tempOfCombine = new ArrayList<>();*/
+    public List<List<Integer>> combinationSum(int[] candidates, int target) {
+        Arrays.sort(candidates);
+        backTracking39(candidates, target, 0, 0);
+        return ansOfCombine;
+    }
+
+    private void backTracking39(int[] candidates, int target, int startIndex, int currentSum) {
+        if (currentSum == target) {
+            ansOfCombine.add(new ArrayList<>(tempOfCombine));
+            return;
+        }
+        if (currentSum > target) {
+            return;
+        }
+
+        for (int i = startIndex; i < candidates.length; i++) {
+            // 选择当前元素
+            tempOfCombine.add(candidates[i]);
+            // 进入下一层决策树
+            //i可以保证不往更小值回溯
+            backTracking39(candidates, target, i, currentSum + candidates[i]);
+            // 回溯，撤销选择
+            tempOfCombine.remove(tempOfCombine.size() - 1);
+        }
+    }
+
+    //40. 组合总和 II
+    //给定一个候选人编号的集合 candidates 和一个目标数 target ，找出 candidates 中所有可以使数字和为 target 的组合。
+    //candidates 中的每个数字在每个组合中只能使用 一次 。
+    //注意：解集不能包含重复的组合。
+    /*    List<List<Integer>> ansOfCombine = new ArrayList<>();
+    List<Integer> tempOfCombine = new ArrayList<>();*/
+    public List<List<Integer>> combinationSum2(int[] candidates, int target) {
+        //不能重复的39题
+        Arrays.sort(candidates);
+        backTracking40(candidates, 0, target, 0);
+        return ansOfCombine;
+    }
+    private void backTracking40(int[] candidates, int index, int target, int sum) {
+        int n = candidates.length;
+        if (sum == target) {
+            ansOfCombine.add(new ArrayList<>(tempOfCombine));
+            return;
+        }
+
+        for (int i = index; i < n && sum + candidates[i] <= target; i++) {
+            if (i > index && candidates[i] == candidates[i-1]) continue;
+            sum += candidates[i];
+            tempOfCombine.add(candidates[i]);
+            backTracking40(candidates, i + 1, target, sum);
+            int temp = tempOfCombine.getLast();
+            sum -= temp;
+            tempOfCombine.removeLast();
+        }
+    }
+
+    //131. 分割回文串
+    //给你一个字符串 s，请你将 s 分割成一些子串，使每个子串都是回文串 。返回 s 所有可能的分割方案。
+    List<String> tempOf131 = new ArrayList<>();
+    List<List<String>> ansOf131 = new ArrayList<>();
+
+    public List<List<String>> partition(String s) {
+        backTracking131(s, 0, new StringBuilder());
+        return ansOf131;
+    }
+
+    private void backTracking131(String s, int index, StringBuilder sb) {
+        int n = s.length();
+        if (index == n){
+            ansOf131.add(new ArrayList<>(tempOf131));
+            return;
+        }
+        for (int i = index; i < n; i++) {
+            sb.append(s.charAt(i));
+            if (isRevStr(sb.toString())){
+                tempOf131.add(sb.toString());
+                backTracking131(s, i + 1, new StringBuilder());
+                tempOf131.removeLast();
+            }
+        }
+    }
+
+    private boolean isRevStr(String s) {
+        for (int i = 0; i < s.toCharArray().length; i++) {
+            if (s.charAt(i) != s.charAt(s.length() - i - 1)) return false;
+        }
+        return true;
+    }
 
 
 }
