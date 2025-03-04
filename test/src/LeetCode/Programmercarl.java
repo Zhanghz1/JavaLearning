@@ -1,5 +1,8 @@
 package LeetCode;
 
+import java.lang.annotation.Target;
+import java.rmi.dgc.DGC;
+import java.sql.Array;
 import java.util.*;
 
 
@@ -1827,6 +1830,487 @@ public class Programmercarl {
         return true;
     }
 
+    //93. 复原 IP 地址
+    //有效 IP 地址 正好由四个整数（每个整数位于 0 到 255 之间组成，且不能含有前导 0），整数之间用 '.' 分隔。
+    //例如："0.1.2.201" 和 "192.168.1.1" 是 有效 IP 地址，但是 "0.011.255.245"、"192.168.1.312" 和 "192.168@1.1" 是 无效 IP 地址。
+    //给定一个只包含数字的字符串 s ，用以表示一个 IP 地址，返回所有可能的有效 IP 地址，这些地址可以通过在 s 中插入 '.' 来形成。你 不能 重新排序或删除 s 中的任何数字。你可以按 任何 顺序返回答案。
+    List<String> tempOf93 = new ArrayList<>();
+    List<List<String>> ansOf93 = new ArrayList<>();
+    public List<String> restoreIpAddresses(String s) {
+        StringBuilder sb = new StringBuilder(s);
+        backTracking93(sb, 0, 0);
+        return tempOf93;
+
+    }
+    private void backTracking93(StringBuilder s, int startIdx, int pointNum) {
+        if (pointNum == 3) {
+            if (isValidIP(s, startIdx, s.length() - 1)){
+                tempOf93.add(s.toString());
+            }
+            return;
+        }
+        for (int i = startIdx; i < s.length(); i++) {
+            if (isValidIP(s, startIdx, i)){
+                s.insert(i+1, '.');
+                backTracking93(s, i+2, pointNum+1);
+                s.deleteCharAt(i+1);
+            }else break;
+        }
+    }
+
+    private boolean isValidIP(StringBuilder s, int startIdx, int end) {
+        if (startIdx > end) return false;
+        if (s.charAt(startIdx) == '0' && startIdx !=end) return false;
+        int num = 0;
+        for (int i = startIdx; i <= end; i++) {
+            int temp = s.charAt(i) - '0';
+            num = num * 10 + temp;
+            if (num > 255) return false;
+        }
+        return true;
+    }
+
+    //78. 子集
+    //给你一个整数数组 nums ，数组中的元素 互不相同 。返回该数组所有可能的子集（幂集）。
+    //解集 不能 包含重复的子集。你可以按 任意顺序 返回解集。
+
+    List<List<Integer>> ansOf78 = new ArrayList<>();
+    List<Integer> tempOf78 = new ArrayList<>();
+    public List<List<Integer>> subsets(int[] nums) {
+        backTracking78(nums, 0);
+        return ansOf78;
+    }
+    public void backTracking78(int[] nums, int startIdx){
+        ansOf78.add(new ArrayList<>(tempOf78));
+        if (startIdx >= nums.length){
+            return;
+        }
+        for (int i = startIdx; i < nums.length; i++) {
+            tempOf78.add(nums[i]);
+            backTracking78(nums, i+1);
+            tempOf78.removeLast();
+        }
+    }
+
+    //90. 子集 II
+    //给你一个整数数组 nums ，其中可能包含重复元素，请你返回该数组所有可能的子集（幂集）。
+    //解集 不能 包含重复的子集。返回的解集中，子集可以按 任意顺序 排列
+    List<List<Integer>> ansOf90 = new ArrayList<>();
+    List<Integer> tempOf90 = new ArrayList<>();
+    public List<List<Integer>> subsetsWithDup(int[] nums) {
+        Arrays.sort(nums);
+        backTracking90(nums, 0);
+        return ansOf90;
+    }
+
+    private void backTracking90(int[] nums, int startIdx) {
+        ansOf90.add(new ArrayList<>(tempOf90));
+        for (int i = startIdx; i < nums.length; i++) {
+            if (i > startIdx && nums[i] == nums[i-1]) continue;
+            tempOf90.add(nums[i]);
+            backTracking90(nums, i+1);
+            tempOf90.removeLast();
+        }
+    }
+
+    //491. 非递减子序列
+    //给你一个整数数组 nums ，找出并返回所有该数组中不同的递增子序列，递增子序列中 至少有两个元素 。你可以按 任意顺序 返回答案。
+    //数组中可能含有重复元素，如出现两个整数相等，也可以视作递增序列的一种特殊情况。
+    List<List<Integer>> ansOf491 = new ArrayList<>();
+    List<Integer> tempOf491 = new ArrayList<>();
+    public List<List<Integer>> findSubsequences(int[] nums) {
+        backTracking491(nums, 0);
+        return ansOf491;
+    }
+
+    private void backTracking491(int[] nums, int startIdx) {
+        if (tempOf491.size() > 1) {
+            ansOf491.add(new ArrayList<>(tempOf491));
+        }
+        HashSet<Integer> hs = new HashSet<>();
+        for (int i = startIdx; i < nums.length; i++) {
+            if (i > startIdx && nums[i] >= nums[i-1]) tempOf491.add(nums[i]);
+            if(!tempOf491.isEmpty() && tempOf491.get(tempOf491.size() -1 ) > nums[i] || hs.contains(nums[i]))
+                continue;
+            hs.add(nums[i]);
+            tempOf491.add(nums[i]);
+            backTracking491(nums, i+1);
+            tempOf491.removeLast();
+        }
+    }
+
+    //46. 全排列
+    //给定一个不含重复数字的数组 nums ，返回其 所有可能的全排列 。你可以 按任意顺序 返回答案。
+    List<List<Integer>> ansOf46 = new ArrayList<>();
+    List<Integer> tempOf46 = new ArrayList<>();
+    public List<List<Integer>> permute(int[] nums) {
+        Arrays.sort(nums);
+        int[] idx = new int[nums.length];
+        backTracking46(nums, 0, idx);
+        return ansOf46;
+    }
+
+    private void backTracking46(int[] nums, int startIdx, int[] idx) {
+        if (tempOf46.size() == nums.length) {
+            ansOf46.add(new ArrayList<>(tempOf46));
+            return;
+        }
+        for (int i = 0; i < nums.length; i++) {
+            if (idx[i] == 0){
+                tempOf46.add(nums[i]);
+                idx[i] = 1;
+                backTracking46(nums, i + 1, idx);
+                tempOf46.removeLast();
+                idx[i] = 0;
+            }
+        }
+    }
+
+    //47. 全排列 II
+    //给定一个可包含重复数字的序列 nums ，按任意顺序 返回所有不重复的全排列。
+    List<List<Integer>> ansOf47 = new ArrayList<>();
+    List<Integer> tempOf47 = new ArrayList<>();
+    public List<List<Integer>> permuteUnique(int[] nums) {
+        Arrays.sort(nums);
+        int[] idx = new int[nums.length];
+        backTracking47(nums, 0, idx);
+        return ansOf47;
+    }
+    private void backTracking47(int[] nums, int startIdx, int[] idx) {
+        if (tempOf47.size() == nums.length) {
+            ansOf47.add(new ArrayList<>(tempOf47));
+            return;
+        }
+        for (int i = 0; i < nums.length; i++) {
+            if (idx[i] == 0 ){
+                if (i > 0 && nums[i] == nums[i - 1] && idx[i - 1] == 1) continue;
+                tempOf47.add(nums[i]);
+                idx[i] = 1;
+                backTracking47(nums, i + 1, idx);
+                tempOf47.removeLast();
+                idx[i] = 0;
+            }
+        }
+    }
+
+    //332. 重新安排行程
+    //给你一份航线列表 tickets ，其中 tickets[i] = [fromi, toi] 表示飞机出发和降落的机场地点。请你对该行程进行重新规划排序。
+    //
+    //所有这些机票都属于一个从 JFK（肯尼迪国际机场）出发的先生，所以该行程必须从 JFK 开始。如果存在多种有效的行程，请你按字典排序返回最小的行程组合。
+    //
+    //例如，行程 ["JFK", "LGA"] 与 ["JFK", "LGB"] 相比就更小，排序更靠前。
+    //假定所有机票至少存在一种合理的行程。且所有的机票 必须都用一次 且 只能用一次。
+/*    public List<String> findItinerary(List<List<String>> tickets) {
+
+    }*/
+
+    //51. N 皇后
+    //按照国际象棋的规则，皇后可以攻击与之处在同一行或同一列或同一斜线上的棋子。
+    //n 皇后问题 研究的是如何将 n 个皇后放置在 n×n 的棋盘上，并且使皇后彼此之间不能相互攻击。
+    //给你一个整数 n ，返回所有不同的 n 皇后问题 的解决方案。
+    //每一种解法包含一个不同的 n 皇后问题 的棋子放置方案，该方案中 'Q' 和 '.' 分别代表了皇后和空位。
+    public List<List<String>> solveNQueens(int n) {
+        List<List<String>> solutions = new ArrayList<List<String>>();
+        int[] queens = new int[n];
+        Arrays.fill(queens, -1);
+        Set<Integer> columns = new HashSet<>();
+        Set<Integer> diagonals1 = new HashSet<>();
+        Set<Integer> diagonals2 = new HashSet<>();
+        backTracking51(solutions, queens, n, 0, columns, diagonals1, diagonals2);
+        return solutions;
+    }
+
+    private void backTracking51(List<List<String>> solutions, int[] queens, int n, int row, Set<Integer> columns, Set<Integer> diagonals1, Set<Integer> diagonals2) {
+        if (row == n){
+            List<String> board = generateBoard(queens, n);
+            solutions.add(board);
+        }else {
+            for (int i = 0; i < n; i++) {
+                if (columns.contains(i)) continue;
+                int diagonal1 = row - i;
+                if (diagonals1.contains(diagonal1)) continue;
+                int diagonal2 = row + i;
+                if (diagonals2.contains(diagonal2)) continue;
+                queens[row] = i;
+                columns.add(i);
+                diagonals1.add(diagonal1);
+                diagonals2.add(diagonal2);
+                backTracking51(solutions, queens, n, row + 1, columns, diagonals1, diagonals2);
+                queens[row] = -1;
+                columns.remove(i);
+                diagonals1.remove(diagonal1);
+                diagonals2.remove(diagonal2);
+            }
+        }
+    }
+
+    private List<String> generateBoard(int[] queens, int n) {
+        List<String> board = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            char[] row = new char[n];
+            Arrays.fill(row, '.');
+            row[queens[i]] = 'Q';
+            board.add(new String(row));
+        }
+        return board;
+    }
+
+    //37. 解数独
+    //编写一个程序，通过填充空格来解决数独问题。
+    //数独的解法需 遵循如下规则：
+    //数字 1-9 在每一行只能出现一次。
+    //数字 1-9 在每一列只能出现一次。
+    //数字 1-9 在每一个以粗实线分隔的 3x3 宫内只能出现一次。（请参考示例图）
+    //数独部分空格内已填入了数字，空白格用 '.' 表示。
+    boolean[][] line37 = new boolean[9][9];
+    boolean[][] column37 = new boolean[9][9];
+    boolean[][][] block37 = new boolean[3][3][9];
+    boolean valid37 = false;
+    List<int[]> spaces37 = new ArrayList<int[]>();
+    public void solveSudoku(char[][] board) {
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                if (board[i][j] == '.'){
+                    spaces37.add(new int[]{i,j});
+                }else {
+                    int digit = board[i][j] - '0' - 1;
+                    line37[i][digit] = column37[j][digit] = block37[i/3][j/3][digit] = true;
+                }
+            }
+        }
+        dfs37(board, 0);
+    }
+    private void dfs37(char[][] board, int pos) {
+        if (pos == spaces37.size()){
+            valid37 = true;
+            return;
+        }
+
+        int[] space = spaces37.get(pos);
+        int i = space[0], j = space[1];
+        for (int digit = 0; digit < 9 && !valid37; ++digit){
+            if (!line37[i][digit] && !column37[j][digit] && !block37[i/3][j/3][digit]){
+                line37[i][digit] = column37[j][digit] = block37[i/3][j/3][digit] = true;
+                board[i][j] = (char) (digit + '0' + 1);
+                dfs37(board, pos + 1);
+                line37[i][digit] = column37[j][digit] = block37[i/3][j/3][digit] = false;
+            }
+        }
+    }
+
+    //45. 跳跃游戏 II
+    //给定一个长度为 n 的 0 索引整数数组 nums。初始位置为 nums[0]。
+    //每个元素 nums[i] 表示从索引 i 向后跳转的最大长度。换句话说，如果你在 nums[i] 处，你可以跳转到任意 nums[i + j] 处:
+    //0 <= j <= nums[i]
+    //i + j < n
+    //返回到达 nums[n - 1] 的最小跳跃次数。生成的测试用例可以到达 nums[n - 1]。
+    public int jump(int[] nums) {
+        int count = 0;
+        int maxPos = 0;
+        int end = 0;
+             for (int i = 0; i < nums.length-1; i++) {
+            maxPos = Math.max(maxPos, nums[i] + i);
+            if (i == end) {
+                end = maxPos;
+                count++;
+            }
+        }
+        return count;
+    }
+
+    //1005. K 次取反后最大化的数组和
+    //给你一个整数数组 nums 和一个整数 k ，按以下方法修改该数组：
+    //选择某个下标 i 并将 nums[i] 替换为 -nums[i] 。
+    //重复这个过程恰好 k 次。可以多次选择同一个下标 i 。
+    //以这种方式修改数组后，返回数组 可能的最大和 。
+    public int largestSumAfterKNegations(int[] nums, int k) {
+        Arrays.sort(nums);
+        int sum = 0;
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] < 0 && k > 0){
+                nums[i] = -nums[i];
+                --k;
+            }
+            sum += nums[i];
+        }
+        Arrays.sort(nums);
+        return sum - (k % 2 == 0 ? 0 : 2 * nums[0]);
+    }
+
+    //134. 加油站
+    //在一条环路上有 n 个加油站，其中第 i 个加油站有汽油 gas[i] 升。
+    //你有一辆油箱容量无限的的汽车，从第 i 个加油站开往第 i+1 个加油站需要消耗汽油 cost[i] 升。你从其中的一个加油站出发，开始时油箱为空。
+    //给定两个整数数组 gas 和 cost ，如果你可以按顺序绕环路行驶一周，则返回出发时加油站的编号，否则返回 -1 。如果存在解，则 保证 它是 唯一 的。
+    public int canCompleteCircuit(int[] gas, int[] cost) {
+        //
+        int n = gas.length;
+        int index = 0;
+        int curSum = 0, totalSum = 0;
+        for (int i = 0; i < n; i++) {
+            curSum += gas[i] - cost[i];
+            totalSum += gas[i] - cost[i];
+            if (curSum < 0) {
+                index = (i + 1) % n;
+                curSum = 0;
+            }
+        }
+        if (totalSum < 0) return -1;
+        else return index;
+    }
+
+    //135. 分发糖果
+    //n 个孩子站成一排。给你一个整数数组 ratings 表示每个孩子的评分。
+    //
+    //你需要按照以下要求，给这些孩子分发糖果：
+    //
+    //每个孩子至少分配到 1 个糖果。
+    //相邻两个孩子评分更高的孩子会获得更多的糖果。
+    //请你给每个孩子分发糖果，计算并返回需要准备的 最少糖果数目 。
+    public int candy(int[] ratings) {
+        if (ratings.length == 1) return 1;
+        int sum = 0;
+        int n = ratings.length;
+        int[] temp = new int[n];
+        for (int i = 0; i < n; i++) {
+            if (i > 0 && ratings[i] > ratings[i-1]) {
+                temp[i] = temp[i-1] + 1;
+            }else temp[i] = 1;
+        }
+        int right = 0;
+        for (int i = n-1; i >= 0; i--) {
+            if (i < n-1 && ratings[i] > ratings[i+1]) {
+                ++right;
+            }else right = 1;
+            sum += Math.max(right, temp[i]);
+        }
+        return sum;
+    }
+
+    //860. 柠檬水找零
+    //在柠檬水摊上，每一杯柠檬水的售价为 5 美元。顾客排队购买你的产品，（按账单 bills 支付的顺序）一次购买一杯。
+    //每位顾客只买一杯柠檬水，然后向你付 5 美元、10 美元或 20 美元。你必须给每个顾客正确找零，也就是说净交易是每位顾客向你支付 5 美元。
+    //注意，一开始你手头没有任何零钱。
+    //给你一个整数数组 bills ，其中 bills[i] 是第 i 位顾客付的账。如果你能给每位顾客正确找零，返回 true ，否则返回 false 。
+    public boolean lemonadeChange(int[] bills) {
+        int[] changes = {0, 0, 0};
+        for (int i = 0; i < bills.length; i++) {
+            if (bills[i] == 5) {
+                ++changes[0];
+            }else if (bills[i] == 10) {
+                if (changes[0] > 0) {
+                    changes[0]--;
+                    changes[1]++;
+                } else return false;
+            }else if (bills[i] == 20) {
+                if (changes[0] > 0 && changes[1] > 0) {
+                    changes[0]--;
+                    changes[1]--;
+                    changes[2]++;
+                } else if (changes[0] > 2){
+                    changes[0] -= 3;
+                    changes[2]++;
+                }else return false;
+            }
+        }
+        return true;
+    }
+
+    //406. 根据身高重建队列
+    //假设有打乱顺序的一群人站成一个队列，数组 people 表示队列中一些人的属性（不一定按顺序）。每个 people[i] = [hi, ki] 表示第 i 个人的身高为 hi ，前面 正好 有 ki 个身高大于或等于 hi 的人。
+    //请你重新构造并返回输入数组 people 所表示的队列。返回的队列应该格式化为数组 queue ，其中 queue[j] = [hj, kj] 是队列中第 j 个人的属性（queue[0] 是排在队列前面的人）。
+    public int[][] reconstructQueue(int[][] people) {
+        //
+        int  n = people.length;
+        Arrays.sort(people, new Comparator<int[]>() {
+            @Override
+            public int compare(int[] o1, int[] o2) {
+                if (o1[0] != o2[0]){
+                    return o1[0] - o2[0]; //升序
+                }else return o2[1] - o1[1]; //降序
+            }
+        });
+        int[][] ans = new int[n][2];
+        for (int[] person : people) {
+            int pos = person[1] + 1;
+            for (int i = 0; i < n; i++) {
+                if (ans[i] == null){
+                    --pos;
+                    if (pos == 0) {
+                        ans[i] = person;
+                        break;
+                    }
+                }
+            }
+        }
+        return ans;
+    }
+
+    //452. 用最少数量的箭引爆气球
+    //有一些球形气球贴在一堵用 XY 平面表示的墙面上。墙面上的气球记录在整数数组 points ，其中points[i] = [xstart, xend] 表示水平直径在 xstart 和 xend之间的气球。你不知道气球的确切 y 坐标。
+    //一支弓箭可以沿着 x 轴从不同点 完全垂直 地射出。在坐标 x 处射出一支箭，若有一个气球的直径的开始和结束坐标为 xstart，xend， 且满足  xstart ≤ x ≤ xend，则该气球会被 引爆 。可以射出的弓箭的数量 没有限制 。
+    //给你一个数组 points ，返回引爆所有气球所必须射出的 最小 弓箭数 。
+    public int findMinArrowShots(int[][] points) {
+        //最少的公共区间数
+        Arrays.sort(points, (a, b) -> Integer.compare(a[0], b[0]));
+        int count = 1;
+        for (int i = 1; i < points.length; i++) {
+            if (points[i][0] > points[i-1][1]) {
+                count++;
+            }else {
+                points[i][1] = Math.min(points[i][1], points[i-1][1]);
+            }
+
+        }
+        return count;
+    }
+
+    //763. 划分字母区间
+    //给你一个字符串 s 。我们要把这个字符串划分为尽可能多的片段，同一字母最多出现在一个片段中。例如，字符串 "ababcc" 能够被分为 ["abab", "cc"]，但类似 ["aba", "bcc"] 或 ["ab", "ab", "cc"] 的划分是非法的。
+    //注意，划分结果需要满足：将所有划分结果按顺序连接，得到的字符串仍然是 s 。
+    //返回一个表示每个字符串片段的长度的列表。
+    public List<Integer> partitionLabels(String s) {
+        int[] a = new int[26];
+        int start = 0, end = 0;
+        int length = s.length();
+        for (int i = 0; i < length; i++) {
+            a[s.charAt(i) - 'a'] = i;
+        }
+        List<Integer> list = new ArrayList<>();
+        for (int i = 0; i < length; i++) {
+            end = Math.max(a[s.charAt(i) - 'a'], end);
+            if (i == end){
+                list.add(end - start + 1);
+                start = end + 1;
+            }
+        }
+        return list;
+    }
+
+    //738. 单调递增的数字
+    //当且仅当每个相邻位数上的数字 x 和 y 满足 x <= y 时，我们称这个整数是单调递增的。
+    //给定一个整数 n ，返回 小于或等于 n 的最大数字，且数字呈 单调递增 。
+    public int monotoneIncreasingDigits(int n) {
+        char[] chars = String.valueOf(n).toCharArray();
+        int flag = chars.length;
+        for (int i = chars.length - 1; i > 0; i--) {
+            if (chars[i] < chars [i-1]) {
+                flag = i;
+                chars[i-1]--;
+            }
+        }
+        for (int i = flag; i < chars.length; i++) {
+            chars[i] = '9';
+        }
+        return Integer.parseInt(new String(chars));
+    }
+
+
+
+
+
+
+
+
+
 
 }
-

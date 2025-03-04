@@ -9,7 +9,6 @@ public class WCHutool {
         String boyNameNet = "http://www.haoming8.cn/baobao/10881.html";
         String girlNameNet = "http://www.haoming8.cn/baobao/7641.html";
         String girlNameStr = HttpUtil.get(girlNameNet);
-        String girlNameStr = HttpUtil.get(girlNameNet);
         HttpUtil.get(boyNameNet);
     }
 

@@ -33,4 +33,5 @@ public class test1 {
         Scanner sc = new Scanner(System.in);
 
     }
+
 }
